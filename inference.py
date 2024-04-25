@@ -79,6 +79,8 @@ def infer_one_image(model_name, image_path, box_score_thresh=0.9):
 
         
 infer_one_image("fasterRCNN_restnet", 
-                r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\image_test\dog_people_1.jpg")
+                r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\image_test\2015_02433.jpg")
+infer_one_image("fasterRCNN_restnet", 
+                r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\image_test\2015_02433log_transform.jpg")
 
 
