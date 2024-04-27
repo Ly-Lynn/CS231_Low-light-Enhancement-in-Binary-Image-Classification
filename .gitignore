@@ -1,2 +1,8 @@
 Exdark
+<<<<<<< HEAD
 ExDark_Annno
+best_localize_log_enhance.pth
+best_localize.pth
+=======
+ExDark_Annno
+>>>>>>> parent of 420199e ("vgg_train_localize")
