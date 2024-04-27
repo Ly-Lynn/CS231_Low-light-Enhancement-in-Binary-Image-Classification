@@ -63,8 +63,6 @@ def gamma_transform(channel, lamda=2, gramma=0.8, epsilon=0.5):
     return transformed_channel
 
 
-import numpy as np
-import cv2
 
 def singleScaleRetinex(img, variance=15):
     retinex = np.log10(img) - np.log10(cv2.GaussianBlur(img, (0, 0), variance))
@@ -178,17 +176,17 @@ def enhance(image, type):
     # cv.imwrite(save_path, enhanced_image)
     return enhanced_image
 
-image_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_05487.jpg"
-img = cv2.imread(image_path)
+# image_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_05487.jpg"
+# img = cv2.imread(image_path)
 
-img_enhance = enhance(img, "log_transform")
+# img_enhance = enhance(img, "log_transform")
 
-cv2.imshow("Original Image", img)
+# cv2.imshow("Original Image", img)
 
-# Hiển thị hình ảnh đã được tăng cường
-cv2.imshow("Enhanced Image", img_enhance)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# # Hiển thị hình ảnh đã được tăng cường
+# cv2.imshow("Enhanced Image", img_enhance)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
     
     
 

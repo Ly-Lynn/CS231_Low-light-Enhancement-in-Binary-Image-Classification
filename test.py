@@ -17,6 +17,7 @@ from model import VGG
 import torch.nn as nn
 from dataset import draw_bounding_boxes, IOU
 import cv2
+from enhance import enhance
 
 
 
@@ -27,7 +28,6 @@ def test_localize(model, test_loader, criterion):
         
         for (imgs, labels, bbs, img_path) in tqdm(test_loader):
             imgs, bbs = imgs.cuda(), bbs.cuda()
-            print(bbs.shape)
             position_outputs = model(imgs)
             print(position_outputs.shape)
             loss = criterion(position_outputs, bbs) 
@@ -35,7 +35,6 @@ def test_localize(model, test_loader, criterion):
             iouscore = IOU(bbs, position_outputs).mean()
             iou_meter.update(iouscore.item(), imgs.shape[0])
 
-            break
         print("Test loss", loss_meter.avg)
         print("IOU score", iou_meter.avg)
 
@@ -66,7 +65,7 @@ transform = transforms.Compose([
 
 
 # ---------------- Model
-model = VGG().train().cuda()
+model = VGG().eval().cuda()
 
 pretrained_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\best_localize.pth"
 model.load_state_dict(torch.load(pretrained_path))
@@ -79,17 +78,17 @@ transform = transforms.Compose([
 ])
 
 # ham cal IOU score
-test_dataset = ExDark_pytorch("Train.txt", transform)
-# test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-#                                transform=transform, 
-#                                enhance="log_transform") # 0.41 iou
-test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
+test_dataset = ExDark_pytorch("Test.txt", transform)
+test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
+                               transform=transform, 
+                               enhance="log_transform") # 0.41 iou
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
 test_localize(model, test_loader, criterion)
 
     
 
 
-# img_path = ""
-# image_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_05599.jpg"
+# image_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_05609.jpg"
 # img = cv2.imread(image_path, cv2.COLOR_BGR2RGB)
+# img = enhance(img, "log_transform")
 # vissulize_test(img, model)
