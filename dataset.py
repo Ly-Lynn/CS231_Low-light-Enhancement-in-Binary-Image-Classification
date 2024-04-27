@@ -6,56 +6,108 @@ from torchvision import tv_tensors
 from torchvision.transforms.v2 import functional as F
 from torch.utils.data import Dataset, DataLoader
 from torchvision.models.detection import *
+from torchvision import transforms
 
+import cv2
 import os
 
-class ExDark(Dataset):
-    def __init__(self, imgs_root, anno_root, model_name="fasterRCNN_restnet"):
-        self.imgs_root = imgs_root
-        self.anno_root = anno_root        
-        self.img_paths = [os.path.join(self.imgs_root, folder_name, file_name)
-                          for folder_name in os.listdir(self.imgs_root)
-                          for file_name in os.listdir(os.path.join(self.imgs_root, folder_name))]
-        
-        
-        if model_name == "fasterRCNN_restnet":
-            weights = FasterRCNN_ResNet50_FPN_V2_Weights.DEFAULT
-            self.transforms = weights.transforms()
-        elif model_name == "....":
-            print()
-        
-        # ..........
-        
 
-        
+def IOU(bbox1, bbox2):
+    x_min1, y_min1, x_max1, y_max1 = bbox1[:, 0], bbox1[:, 1], bbox1[:, 2], bbox1[:, 3]
+    x_min2, y_min2, x_max2, y_max2 = bbox2[:, 0], bbox2[:, 1], bbox2[:, 2], bbox2[:, 3]
 
-    def __getitem__(self, idx):
-        # load images and masks
-        img_path = self.img_paths[idx]
-        anno_path = img_path.replace(self.imgs_root, self.anno_root) + ".txt"
-        with open(anno_path, 'r') as anno_file:
-            anno_file.readline()
-            lines = anno_file.readlines()
-            lines = [line.split() for line in lines]
+    x_min_inter = torch.max(x_min1, x_min2)
+    y_min_inter = torch.max(y_min1, y_min2)
+    x_max_inter = torch.min(x_max1, x_max2)
+    y_max_inter = torch.min(y_max1, y_max2)
+
+    inter_area = torch.clamp(x_max_inter - x_min_inter, min=0) * torch.clamp(y_max_inter - y_min_inter, min=0)
+
+    area1 = (x_max1 - x_min1) * (y_max1 - y_min1)
+    area2 = (x_max2 - x_min2) * (y_max2 - y_min2)
+
+    iou = inter_area / (area1 + area2 - inter_area + 1e-6)
+
+    return iou
+
+
+def draw_bounding_boxes(image, bbs):
+    x1, y1, x2, y2 = bbs
+    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
+    image = cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Vẽ bounding box
+
+    return image
+
+
+class AverageMeter(object):
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
         
-                
-        img = read_image(img_path)
-        img = self.transforms(img)
         
-        labels = [line[0] for line in lines] # 
-        boxes = torch.tensor([[int(coordinate) for coordinate in line[1:5]] for line in lines])
-        # boxes = tv_tensors.BoundingBoxes(boxes, format="XYXY", canvas_size=F.get_size(img))
+class ExDark_pytorch(Dataset):
+    def __init__(self, annotations_file, transform, enhance=None,
+                 anno_dir=r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno",
+                 img_dir=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"):
         
+        with open(annotations_file, "r") as f:
+            lines = f.readlines()
+            lines = [line.strip() for line in lines]
+        
+        self.lines = lines
+        self.transform = transform
+        self.enhance = enhance
+        self.anno_dir = anno_dir
+        self.img_dir = img_dir
     
-
-        return img, labels, boxes
-
+    def __getitem__(self, index):
+        [anno_path, label] = self.lines[index].split(", ")
+        
+        label = 0 if label == "Dog" else 1
+        
+        img_path = anno_path.replace(self.anno_dir, self.img_dir).replace(".txt", "")
+        img = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
+        
+        with open(anno_path, "r") as f:
+            f.readline()
+            line = f.readline().split()
+        [x_min, y_min, w_b, h_b] = [int(coordinate) for coordinate in line[1:5]]
+        x_max, y_max = x_min + w_b, y_min + h_b
+        
+        w, h = img.shape[0], img.shape[1]
+        x_ratio = w / 128
+        y_ratio = h / 128
+        x_min, y_min, x_max, y_max = int(x_min / x_ratio), int(y_min / y_ratio),  int(x_max / x_ratio), int(y_max / y_ratio)
+        bb = torch.tensor([x_min, y_min, x_max, y_max])
+        
+        if self.enhance:
+            img = enhance(img, self.enhance)
+        
+        if self.transform:
+            img = self.transform(img)
+            
+        return img, label, bb.float(), img_path
+            
     def __len__(self):
-        return len(self.img_paths)
+        return len(self.lines)
     
-Ex_dataset = ExDark(r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark",
-       r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark_Annno")
-
-# a, b, c = dataset[0]
-# print(a.shape)
-# print(c.shape)
+transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize((128, 128)), ######
+    transforms.ToTensor()
+])
+# a = ExDark_pytorch(annoations_file=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\Test.txt",
+#                    transform=transform)
+        

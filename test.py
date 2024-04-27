@@ -18,6 +18,8 @@ import torch.nn as nn
 from dataset import draw_bounding_boxes, IOU
 import cv2
 
+
+
 def test_localize(model, test_loader, criterion):
     loss_meter = AverageMeter()
     iou_meter = AverageMeter()
@@ -66,7 +68,7 @@ transform = transforms.Compose([
 # ---------------- Model
 model = VGG().train().cuda()
 
-pretrained_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\best_localize_log_enhance.pth"
+pretrained_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\best_localize.pth"
 model.load_state_dict(torch.load(pretrained_path))
 criterion = nn.MSELoss()  
 
@@ -77,10 +79,10 @@ transform = transforms.Compose([
 ])
 
 # ham cal IOU score
-# test_dataset = ExDark_pytorch("Test.txt", transform)
-test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-                               transform=transform, 
-                               enhance="log_transform") # 0.41 iou
+test_dataset = ExDark_pytorch("Train.txt", transform)
+# test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
+#                                transform=transform, 
+#                                enhance="log_transform") # 0.41 iou
 test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
 test_localize(model, test_loader, criterion)
 
