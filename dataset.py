@@ -12,6 +12,13 @@ import cv2
 import os
 
 
+
+def accuracy(output, target):    
+    correct = output.eq(target).sum().item()
+    accuracy = correct / target.size(0)
+    return accuracy
+    
+
 def IOU(bbox1, bbox2):
     x_min1, y_min1, x_max1, y_max1 = bbox1[:, 0], bbox1[:, 1], bbox1[:, 2], bbox1[:, 3]
     x_min2, y_min2, x_max2, y_max2 = bbox2[:, 0], bbox2[:, 1], bbox2[:, 2], bbox2[:, 3]
@@ -76,6 +83,8 @@ class ExDark_pytorch(Dataset):
         [anno_path, label] = self.lines[index].split(", ")
         
         label = 0 if label == "Dog" else 1
+        # label = torch.tensor(label)
+        label = torch.tensor([label]).float()
         
         img_path = anno_path.replace(self.anno_dir, self.img_dir).replace(".txt", "")
         img = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
@@ -102,12 +111,5 @@ class ExDark_pytorch(Dataset):
             
     def __len__(self):
         return len(self.lines)
-    
-transform = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((128, 128)), ######
-    transforms.ToTensor()
-])
-# a = ExDark_pytorch(annoations_file=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\Test.txt",
-#                    transform=transform)
+
         

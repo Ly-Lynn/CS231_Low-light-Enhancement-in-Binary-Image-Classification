@@ -33,6 +33,10 @@
 
 import cv2 as cv
 import numpy as np
+import os
+import json
+from PIL import Image
+
 
 def linear_gray_level_function(channel_image,  mode="normal", map_range=(25, 255),):
     c, d = map_range
@@ -41,7 +45,7 @@ def linear_gray_level_function(channel_image,  mode="normal", map_range=(25, 255
     k = (d - c) / (b - a)
     map_image = k * (channel_image - a) + c
     
-    return map_image
+    return map_image.astype(np.uint8)
 
 
 
@@ -65,7 +69,7 @@ def gamma_transform(channel, lamda=2, gramma=0.8, epsilon=0.5):
 
 
 def singleScaleRetinex(img, variance=15):
-    retinex = np.log10(img) - np.log10(cv2.GaussianBlur(img, (0, 0), variance))
+    retinex = np.log10(img) - np.log10(cv.GaussianBlur(img, (0, 0), variance))
     return retinex
 
 def multiScaleRetinex(img, variance_list=[15, 80, 150]):
@@ -106,7 +110,7 @@ def MSR(img, variance_list=[15, 80, 150]):
 
 
 
-def SSR(img, variance=[15, 80, 150]):
+def SSR(img, variance=200):
     img = np.float64(img) + 1.0
     img_retinex = singleScaleRetinex(img, variance)
     zero_count = 0
@@ -155,38 +159,40 @@ def enhance(image, type):
         r_map = gamma_transform(r_image)
         g_map = gamma_transform(g_image)
         b_map = gamma_transform(b_image)  
-           
-    elif type == "MSR":
-        r_map = MSR(r_image)
-        g_map = MSR(g_image)
-        b_map = MSR(b_image)     
-    elif type == "SSR":
-        r_map = SSR(r_image)
-        g_map = SSR(g_image)
-        b_map = SSR(b_image)     
-    elif type == "gamma_transform":
-        r_map = gamma_transform(r_image)
-        g_map = gamma_transform(g_image)
-        b_map = gamma_transform(b_image)     
         
         
-    
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
     # cv.imwrite(save_path, enhanced_image)
     return enhanced_image
 
-# image_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_05487.jpg"
-# img = cv2.imread(image_path)
-
-# img_enhance = enhance(img, "log_transform")
-
-# cv2.imshow("Original Image", img)
-
-# # Hiển thị hình ảnh đã được tăng cường
-# cv2.imshow("Enhanced Image", img_enhance)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
+def save_enhance(annotator_file,
+                enhance_type,
+                mode="Train",
+                anno_dir = r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno",
+                img_dir = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"):
     
+    OUTDIR = f"Enhance_{enhance_type}"
+    if not os.path.exists(OUTDIR):
+        os.mkdir(OUTDIR)
+        
+    MODE_OUTDIR = os.path.join(OUTDIR, mode)
+    if not os.path.exists(MODE_OUTDIR):
+        os.mkdir(MODE_OUTDIR)
     
-
+    with open(annotator_file, "r") as f:
+        lines = f.readlines()
+        lines = [line.strip() for line in lines]
+        
+        
+    for line in lines:
+        [anno_path, label] = line.split(", ")
+        img_path = anno_path.replace(anno_dir, img_dir).replace(".txt", "")
+        img = cv.imread(img_path, cv.COLOR_BGR2RGB)
+        file_name = f"{label}_{img_path[-14:]}"
+        
+        enhanced_img = enhance(img, enhance_type)
+        combined_img = cv.hconcat([img, enhanced_img])
+        cv.imwrite(os.path.join(MODE_OUTDIR, file_name), combined_img)
+            
+    
