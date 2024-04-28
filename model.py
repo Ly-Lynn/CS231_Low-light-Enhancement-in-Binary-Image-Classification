@@ -63,3 +63,4 @@ class ML_base_model(nn.Module):
     def forward(self, x):
         return self.classify(x)
     
+# self .pca
