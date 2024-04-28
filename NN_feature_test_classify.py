@@ -81,11 +81,14 @@ def main():
 
     # ham cal IOU score
     # test_dataset = ExDark_pytorch("Test.txt", transform)
-    test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-                                   transform=transform, 
-                                   enhance="log_transform") # 0.41 iou
-    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
+    # test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
+    #                                transform=transform, 
+    #                                enhance="log_transform") # 0.41 iou
+    # test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
     # test_classify(model, test_loader, criterion)
+    
+    
+    
 
         
 

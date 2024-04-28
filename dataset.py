@@ -65,7 +65,9 @@ class AverageMeter(object):
         
         
 class ExDark_pytorch(Dataset):
-    def __init__(self, annotations_file, transform, enhance=None,
+    def __init__(self, annotations_file, transform, 
+                 enhance=None,
+                 feature_name=None,
                  anno_dir=r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno",
                  img_dir=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"):
         
@@ -78,6 +80,7 @@ class ExDark_pytorch(Dataset):
         self.enhance = enhance
         self.anno_dir = anno_dir
         self.img_dir = img_dir
+        self.feature_name = feature_name
     
     def __getitem__(self, index):
         [anno_path, label] = self.lines[index].split(", ")
@@ -88,6 +91,7 @@ class ExDark_pytorch(Dataset):
         
         img_path = anno_path.replace(self.anno_dir, self.img_dir).replace(".txt", "")
         img = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
+        
         
         with open(anno_path, "r") as f:
             f.readline()
@@ -111,5 +115,3 @@ class ExDark_pytorch(Dataset):
             
     def __len__(self):
         return len(self.lines)
-
-        
