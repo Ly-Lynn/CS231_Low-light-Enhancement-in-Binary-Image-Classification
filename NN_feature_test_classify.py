@@ -98,4 +98,3 @@ def main():
     # img = enhance(img, "log_transform")
     test(img, model)
     
-mai

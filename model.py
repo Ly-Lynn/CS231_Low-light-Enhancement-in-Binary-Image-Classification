@@ -1,5 +1,6 @@
 import torchvision.models as models
 import torch.nn as nn
+import torch
 
 class VGG(nn.Module):
     def __init__(self, num_classes=4):
@@ -49,8 +50,8 @@ class Classification(nn.Module):
     
     
 class ML_base_model(nn.Module):
-    def __init__(self, input_shape, num_classes=1):
-        super(Classification, self).__init__()
+    def __init__(self, input_shape=700, num_classes=1):
+        super(ML_base_model, self).__init__()
         self.classify = nn.Sequential(
                     nn.Linear(input_shape, 4096),
                     nn.ReLU(inplace=True),
@@ -62,5 +63,12 @@ class ML_base_model(nn.Module):
         
     def forward(self, x):
         return self.classify(x)
-    
+
+# model = ML_base_model(input_shape=700)
+
+# input_tensor = torch.rand(16 ,1, 700)
+
+# out = model(input_tensor)
+# print(out)
+
 # self .pca

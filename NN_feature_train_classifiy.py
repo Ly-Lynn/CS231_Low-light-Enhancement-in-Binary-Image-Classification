@@ -12,49 +12,62 @@ import cv2 as cv
 from torch.utils.data import DataLoader
 from torch import optim
 import torchvision.models as models
-from dataset import AverageMeter, ExDark_pytorch
-from model import VGG, Classification
+from dataset import AverageMeter, ExDark_pytorch, ExDark_ML_base
+from model import Classification, ML_base_model
 import torch.nn as nn
 
 
-def main():
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 
 
-    os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+def train(model_name, enhance=None):
+    
 
-    # ------------------ Load_dataset
-    transform = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Resize((128, 128)), ######
-        transforms.ToTensor()
-    ])
-    enhance = "log_transform"
-    train_dataset = ExDark_pytorch(annotations_file="Train.txt", 
-                                   transform=transform, 
-                                   enhance=enhance)
-    test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-                                   transform=transform, 
-                                   enhance=enhance)
-    # enhance = ""
-    # train_dataset = ExDark_pytorch(annotations_file="Train.txt", 
-    #                             transform=transform)
-    # test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-    #                             transform=transform)
+    if model_name == "NN":
+    
+        # ------------------ Load_dataset
+        transform = transforms.Compose([
+            transforms.ToPILImage(),
+            transforms.Resize((128, 128)),
+            transforms.ToTensor()
+        ])
+        train_dataset = ExDark_pytorch(annotations_file="Train.txt", 
+                                    transform=transform, 
+                                    enhance_type=enhance)
+        test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
+                                    transform=transform, 
+                                    enhance_type=enhance)
+        model = Classification().cuda()
+    
+    
+    elif model_name == "PCA":
+        
+        transform = transforms.ToTensor()
+        
+        train_dataset = ExDark_ML_base(annotations_file="Train.txt", 
+                                    enhance=enhance,
+                                    transform=transform, 
+                                    feature_pretrained="PCA_None.pkl")
+        test_dataset = ExDark_ML_base(annotations_file="Test.txt", 
+                                    enhance=enhance, 
+                                    transform=transform, 
+                                    feature_pretrained="PCA_None.pkl")
+        model = ML_base_model().cuda()
+
+
+    elif model_name == "":
+        print()
+        ################################################################
+
+    model.train()
 
     train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
 
 
-
-
     # ---------------- Model
-    model = Classification().train().cuda()
-    # pretrained_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\best_localize.pth"
-    # model.load_state_dict(torch.load(pretrained_path))
-    # criterion = nn.CrossEntropyLoss()
     criterion = nn.BCELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
-    # ham cal IOU score
     epochs = 200
 
     loss_meter = AverageMeter()
@@ -89,6 +102,8 @@ def main():
                 loss_meter.update(loss.item(), imgs.shape[0])
             if not best_loss or loss_meter.avg < best_loss:
                 best_loss = loss_meter.avg
-                torch.save(model.state_dict(), f"best_classify_{enhance}.pth")
+                torch.save(model.state_dict(), f"best_classify_{model_name}_{enhance}.pth")
+                # torch.save(model.state_dict(), f"best_classify_test.pth")
 
-main()
+# train("NN", enhance=None)
+train("PCA", enhance=None)
