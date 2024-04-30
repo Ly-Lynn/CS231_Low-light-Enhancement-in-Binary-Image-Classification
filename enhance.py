@@ -66,7 +66,14 @@ def gamma_transform(channel, lamda=2, gramma=0.8, epsilon=0.5):
     
     return transformed_channel
 
+def histogram_equalization(image):
+    b, g, r = cv.split(image)
+    b_equalized = cv.equalizeHist(b)
+    g_equalized = cv.equalizeHist(g)
+    r_equalized = cv.equalizeHist(r)
+    equalized_image = cv.merge((b_equalized, g_equalized, r_equalized))
 
+    return equalized_image
 
 def singleScaleRetinex(img, variance=15):
     retinex = np.log10(img) - np.log10(cv.GaussianBlur(img, (0, 0), variance))
@@ -159,7 +166,8 @@ def enhance(image, type):
         r_map = gamma_transform(r_image)
         g_map = gamma_transform(g_image)
         b_map = gamma_transform(b_image)  
-        
+    elif type == "histogram_equalization":
+        return histogram_equalization(image)
         
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
