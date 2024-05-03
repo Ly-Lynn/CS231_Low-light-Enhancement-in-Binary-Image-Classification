@@ -15,12 +15,14 @@ import torchvision.models as models
 from dataset import AverageMeter, ExDark_pytorch
 from model import Classification
 import torch.nn as nn
-
+from enhance import *
 
 os.environ['CUDA_VISIBLE_DEVICES'] = "0"
 
 
 def train(enhance=None):
+    
+
     
     W, H = 128, 128 # image to resize
     
@@ -32,15 +34,15 @@ def train(enhance=None):
     ]) # transform data
     
     
-    train_dataset = ExDark_pytorch(annotations_file="Train_1.txt", 
+    train_dataset = ExDark_pytorch(annotations_file="Splits/Train.txt", 
                                 transform=transform, 
                                 enhance_type=enhance)
-    test_dataset = ExDark_pytorch(annotations_file="Test_1.txt", 
+    test_dataset = ExDark_pytorch(annotations_file="Splits/Test.txt", 
                                 transform=transform, 
                                 enhance_type=enhance)
     
-    train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
     
     # -------------------- Load model ----------------------
     model = Classification().cuda().train()
@@ -73,22 +75,22 @@ def train(enhance=None):
         loss_meter.reset()
         
         # validation
-        # with torch.no_grad():
-        #     model.eval()
-        #     try:
-        #         for (imgs, labels, bbs, img_path) in tqdm(test_loader):
-        #             imgs, labels = imgs.cuda(), labels.cuda()        
-        #             outputs = model(imgs)
-        #             loss = criterion(outputs, labels)
-        #             loss_meter.update(loss.item(), imgs.shape[0])
-        #         if not best_loss or loss_meter.avg < best_loss:
-        #             best_loss = loss_meter.avg
-        #             torch.save(model.state_dict(), f"best_classify_{enhance}_.pth")
-        #     except Exception as e:
-        #         print(img_path)
-        #         break
+        with torch.no_grad():
+            model.eval()
+            try:
+                for (imgs, labels, bbs, img_path) in tqdm(test_loader):
+                    imgs, labels = imgs.cuda(), labels.cuda()        
+                    outputs = model(imgs)
+                    loss = criterion(outputs, labels)
+                    loss_meter.update(loss.item(), imgs.shape[0])
+                if not best_loss or loss_meter.avg < best_loss:
+                    best_loss = loss_meter.avg
+                    torch.save(model.state_dict(), f"best_classify_{enhance}_.pth")
+            except Exception as e:
+                print(img_path)
+                break
 
-train()
+train(enhance="Autoencoder") # 18 epoch
 # train()
 # train("PCA", enhance=None)
 

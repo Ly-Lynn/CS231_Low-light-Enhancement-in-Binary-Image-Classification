@@ -186,8 +186,9 @@ def enhance(image, type, model=None):
         img = img.astype('float32') / 255.0
         img = np.expand_dims(img, axis=0)
         img_pred = model.predict(img)
-        return np.clip(img_pred, 0.0, 1.0)[0] * 255.0
-        
+        # return np.clip(img_pred, 0.0, 1.0)[0] * 255.0
+        img_pred = np.clip(img_pred, 0.0, 1.0)[0] * 255.0
+        return img_pred.astype(np.uint8)
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
     # cv.imwrite(save_path, enhanced_image)
@@ -237,19 +238,18 @@ def save_enhance(annotator_file,
 #              "Test",
 #              model)
 
+# model = Autoencoder()
+# checkpoint_path = "Trained_model/model.h5"
+# model.load_weights(checkpoint_path)
 # img_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Dog\2015_04963.jpg"
 
 
 # img = cv.imread(img_path, cv.COLOR_BGR2RGB)
 # enhanced = enhance(img, "Autoencoder", model)
-# # img = cv.resize(img, (256, 256)) 
-# # img = img.astype('float32') / 255.0
-# # img = np.expand_dims(img, axis=0)
-# # img_pred = model.predict(img)[0]
-# # img_pred *= 255
 # print(enhanced)
 # cv.imshow("prediction: ",enhanced)
-# cv.imwrite("test.png", enhanced * 255)
+# cv.imwrite("test.png", enhanced )
+
 # # img_pred_pil = Image.fromarray(enhanced)
 # # img_pred_pil.save("test.png")
 

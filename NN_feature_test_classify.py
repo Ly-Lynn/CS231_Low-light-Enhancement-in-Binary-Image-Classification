@@ -70,15 +70,15 @@ def main():
     # ---------------- Model
     model = Classification().eval().cuda()
 
-    pretrained_path = r"Trained_model/best_classify_NN.pth"
+    pretrained_path = r"best_classify_Autoencoder_.pth"
     model.load_state_dict(torch.load(pretrained_path))
     criterion = nn.BCELoss()  
 
     # ham cal IOU score
-    test_dataset = ExDark_pytorch("Splits/Test.txt", transform)
-    # test_dataset = ExDark_pytorch(annotations_file="Splits/Test.txt", 
-    #                                transform=transform, 
-    #                                enhance_type="log_transform") # 0.41 iou
+    # test_dataset = ExDark_pytorch("Splits/Test.txt", transform)
+    test_dataset = ExDark_pytorch(annotations_file="Splits/Test.txt", 
+                                   transform=transform, 
+                                   enhance_type="Autoencoder") # 0.41 iou
     test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
     test_classify(model, test_loader, criterion)
     

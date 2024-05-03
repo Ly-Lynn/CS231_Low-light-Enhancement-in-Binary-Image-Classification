@@ -7,7 +7,7 @@ from torchvision.transforms.v2 import functional as F
 from torch.utils.data import Dataset, DataLoader
 from torchvision.models.detection import *
 from torchvision import transforms
-from enhance import enhance
+from enhance import *
 import cv2
 import os
 import joblib
@@ -79,6 +79,12 @@ class ExDark_pytorch(Dataset):
         self.enhance_type = enhance_type
         self.anno_dir = anno_dir
         self.img_dir = img_dir
+        self.model = None
+        if enhance_type == "Autoencoder":
+            model = Autoencoder()
+            checkpoint_path = "Trained_model/model.h5"
+            model.load_weights(checkpoint_path)
+            self.model = model
     
     def __getitem__(self, index):
         [anno_path, label] = self.lines[index].split(", ")
@@ -104,7 +110,7 @@ class ExDark_pytorch(Dataset):
         bb = torch.tensor([x_min, y_min, x_max, y_max])
         
         if self.enhance_type:
-            img = enhance(img, self.enhance_type)
+            img = enhance(img, self.enhance_type, self.model)
         
         if self.transform:
             img = self.transform(img)
@@ -113,4 +119,9 @@ class ExDark_pytorch(Dataset):
             
     def __len__(self):
         return len(self.lines)
-    
+
+transform = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize((128, 128)),
+        transforms.ToTensor()
+    ]) # transform data
