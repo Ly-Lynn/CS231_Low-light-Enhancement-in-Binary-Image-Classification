@@ -66,7 +66,14 @@ def gamma_transform(channel, lamda=2, gramma=0.8, epsilon=0.5):
     
     return transformed_channel
 
+def histogram_equalization(image):
+    b, g, r = cv.split(image)
+    b_equalized = cv.equalizeHist(b)
+    g_equalized = cv.equalizeHist(g)
+    r_equalized = cv.equalizeHist(r)
+    equalized_image = cv.merge((b_equalized, g_equalized, r_equalized))
 
+    return equalized_image
 
 def singleScaleRetinex(img, variance=15):
     retinex = np.log10(img) - np.log10(cv.GaussianBlur(img, (0, 0), variance))
@@ -158,7 +165,8 @@ def enhance(image, type):
     elif type == "gamma_transform":
         r_map = gamma_transform(r_image)
         g_map = gamma_transform(g_image)
-        b_map = gamma_transform(b_image)
+        b_map = gamma_transform(b_image)  
+        
         
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
@@ -193,14 +201,5 @@ def save_enhance(annotator_file,
         enhanced_img = enhance(img, enhance_type)
         combined_img = cv.hconcat([img, enhanced_img])
         cv.imwrite(os.path.join(MODE_OUTDIR, file_name), combined_img)
-        
-
-# img_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Car\2015_02414.jpg"
-# img = cv.imread(img_path, cv.COLOR_BGR2RGB)
-# img_enhance = enhance(img, "log_transform")
-# combined_img = cv.hconcat([img, img_enhance])
-# cv.imshow("Original vs Enhanced", combined_img)
-# cv.waitKey(0)
-# cv.destroyAllWindows()
             
     
