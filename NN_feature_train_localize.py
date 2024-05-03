@@ -78,15 +78,15 @@ def main():
         print(f"Train Loss: {loss_meter.avg}")
         loss_meter.reset()
         
-        # with torch.no_grad():
-        #     model.eval()
-        #     for (imgs, labels, bbs, img_path) in tqdm(test_loader):
-        #         imgs, bbs = imgs.cuda(), bbs.cuda()        
-        #         position_outputs = model(imgs)
-        #         loss = criterion(position_outputs, bbs)
-        #         loss_meter.update(loss.item(), imgs.shape[0])
-        #     if not best_loss or loss_meter.avg < best_loss:
-        #         best_loss = loss_meter.avg
-        #         torch.save(model.state_dict(), f"best_localize_{enhance}.pth")
+        with torch.no_grad():
+            model.eval()
+            for (imgs, labels, bbs, img_path) in tqdm(test_loader):
+                imgs, bbs = imgs.cuda(), bbs.cuda()        
+                position_outputs = model(imgs)
+                loss = criterion(position_outputs, bbs)
+                loss_meter.update(loss.item(), imgs.shape[0])
+            if not best_loss or loss_meter.avg < best_loss:
+                best_loss = loss_meter.avg
+                torch.save(model.state_dict(), f"best_localize_{enhance}.pth")
 
 main()

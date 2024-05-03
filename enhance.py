@@ -158,8 +158,7 @@ def enhance(image, type):
     elif type == "gamma_transform":
         r_map = gamma_transform(r_image)
         g_map = gamma_transform(g_image)
-        b_map = gamma_transform(b_image)  
-        
+        b_map = gamma_transform(b_image)
         
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
@@ -194,5 +193,14 @@ def save_enhance(annotator_file,
         enhanced_img = enhance(img, enhance_type)
         combined_img = cv.hconcat([img, enhanced_img])
         cv.imwrite(os.path.join(MODE_OUTDIR, file_name), combined_img)
+        
+
+# img_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Car\2015_02414.jpg"
+# img = cv.imread(img_path, cv.COLOR_BGR2RGB)
+# img_enhance = enhance(img, "log_transform")
+# combined_img = cv.hconcat([img, img_enhance])
+# cv.imshow("Original vs Enhanced", combined_img)
+# cv.waitKey(0)
+# cv.destroyAllWindows()
             
     

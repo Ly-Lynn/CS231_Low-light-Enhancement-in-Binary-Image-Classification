@@ -1,5 +1,6 @@
 import os
 import json
+import random
 
 ANNNO_DIR = "D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno"
 output_file = "analysis.json"
@@ -26,23 +27,29 @@ def extract_data(analys_file):
         dog_paths = dic["Dog"]
         cat_paths = dic["Cat"]
         
-        i = int(0.8 * len(dog_paths))
-        train_dog_paths = dog_paths[:i]
-        train_cat_paths = cat_paths[:i]
-        test_dog_paths = dog_paths[i:]
-        test_cat_paths = cat_paths[i:]
+        # i = int(0.8 * len(dog_paths))
+        # train_dog_paths = dog_paths[:i]
+        # train_cat_paths = cat_paths[:i]
+        # test_dog_paths = dog_paths[i:]
+        # test_cat_paths = cat_paths[i:]
+        
+        train_dog_paths = random.sample(dog_paths, k=int(0.7 * len(dog_paths)))
+        train_cat_paths = random.sample(cat_paths, k=int(0.7 * len(cat_paths)))
+        
+        test_dog_paths = [path for path in dog_paths if path not in train_dog_paths]
+        test_cat_paths = [path for path in cat_paths if path not in train_cat_paths]
         
         print(len(train_dog_paths) + len(train_cat_paths))
         print(len(test_dog_paths) + len(test_cat_paths))
 
         
-        with open("Train.txt", "w") as train_file:
+        with open("Train_2.txt", "w") as train_file:
             for path in train_dog_paths:
                 train_file.write(f"{path}, Dog\n")
             for path in train_cat_paths:
                 train_file.write(f"{path}, Cat\n")
 
-        with open("Test.txt", "w") as test_file:
+        with open("Test_2.txt", "w") as test_file:
             for path in test_dog_paths:
                 test_file.write(f"{path}, Dog\n")
             for path in test_cat_paths:

@@ -10,3 +10,6 @@ Enhance_log_transform
 Enhance_SSR
 best_classify_PCA_None.pth
 PCA_None.pkl
+yolov5
+best_classify_gamma_transform_.pth
+best_classify_NN_linear_gray_transform.pth

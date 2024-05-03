@@ -1,31 +1,9 @@
 import torchvision.models as models
 import torch.nn as nn
 import torch
-
-class VGG(nn.Module):
-    def __init__(self, num_classes=4):
-        super(VGG, self).__init__()
-        self.vgg = models.vgg19(pretrained=True)
         
-        # Freeze convolutional layers
-        for param in self.vgg.features.parameters():
-            param.requires_grad = False
-        
-        # Replace fully connected layers
-        self.vgg.classifier = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 4096),
-            nn.ReLU(inplace=True),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Linear(4096, num_classes),
-        )
-
-    def forward(self, x):
-        return self.vgg(x)
-    
-    
 class Classification(nn.Module):
-    def __init__(self, num_classes=1, features=None):
+    def __init__(self, num_classes=1):
         super(Classification, self).__init__()
         
         
@@ -48,27 +26,3 @@ class Classification(nn.Module):
     def forward(self, x):
         return self.vgg(x)
     
-    
-class ML_base_model(nn.Module):
-    def __init__(self, input_shape=700, num_classes=1):
-        super(ML_base_model, self).__init__()
-        self.classify = nn.Sequential(
-                    nn.Linear(input_shape, 4096),
-                    nn.ReLU(inplace=True),
-                    nn.Linear(4096, 4096),
-                    nn.ReLU(inplace=True),
-                    nn.Linear(4096, num_classes),
-                    nn.Sigmoid()
-                )
-        
-    def forward(self, x):
-        return self.classify(x)
-
-# model = ML_base_model(input_shape=700)
-
-# input_tensor = torch.rand(16 ,1, 700)
-
-# out = model(input_tensor)
-# print(out)
-
-# self .pca
