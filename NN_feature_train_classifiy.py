@@ -73,20 +73,20 @@ def train(enhance=None):
         loss_meter.reset()
         
         # validation
-        with torch.no_grad():
-            model.eval()
-            try:
-                for (imgs, labels, bbs, img_path) in tqdm(test_loader):
-                    imgs, labels = imgs.cuda(), labels.cuda()        
-                    outputs = model(imgs)
-                    loss = criterion(outputs, labels)
-                    loss_meter.update(loss.item(), imgs.shape[0])
-                if not best_loss or loss_meter.avg < best_loss:
-                    best_loss = loss_meter.avg
-                    torch.save(model.state_dict(), f"best_classify_{enhance}_.pth")
-            except Exception as e:
-                print(img_path)
-                break
+        # with torch.no_grad():
+        #     model.eval()
+        #     try:
+        #         for (imgs, labels, bbs, img_path) in tqdm(test_loader):
+        #             imgs, labels = imgs.cuda(), labels.cuda()        
+        #             outputs = model(imgs)
+        #             loss = criterion(outputs, labels)
+        #             loss_meter.update(loss.item(), imgs.shape[0])
+        #         if not best_loss or loss_meter.avg < best_loss:
+        #             best_loss = loss_meter.avg
+        #             torch.save(model.state_dict(), f"best_classify_{enhance}_.pth")
+        #     except Exception as e:
+        #         print(img_path)
+        #         break
 
 train()
 # train()

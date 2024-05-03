@@ -25,16 +25,17 @@ def test_classify(model, test_loader, criterion):
     loss_meter = AverageMeter()
     acc_meter = AverageMeter()
     with torch.no_grad():
-        
-        for (imgs, labels, bbs, img_path) in tqdm(test_loader):
-            imgs, labels = imgs.cuda(), labels.cuda()        
-            outputs = model(imgs)
-            loss = criterion(outputs, labels)
-            loss_meter.update(loss.item(), imgs.shape[0])
-            acc = accuracy(torch.round(outputs), labels)
-            print("\n", acc)
-            acc_meter.update(acc, imgs.shape[0])
 
+        for (imgs, labels, bbs, img_path) in tqdm(test_loader):
+                imgs, labels = imgs.cuda(), labels.cuda()        
+                outputs = model(imgs)
+                loss = criterion(outputs, labels)
+                loss_meter.update(loss.item(), imgs.shape[0])
+                acc = accuracy(torch.round(outputs), labels)
+                print("\n", acc)
+                acc_meter.update(acc, imgs.shape[0])
+
+                
 
         print("Test loss ", loss_meter.avg)
         print("Accuracy ", acc_meter.avg)
@@ -69,15 +70,15 @@ def main():
     # ---------------- Model
     model = Classification().eval().cuda()
 
-    pretrained_path = r"best_classify_gamma_transform_.pth"
+    pretrained_path = r"Trained_model/best_classify_NN.pth"
     model.load_state_dict(torch.load(pretrained_path))
     criterion = nn.BCELoss()  
 
     # ham cal IOU score
-    # test_dataset = ExDark_pytorch("Test.txt", transform)
-    test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
-                                   transform=transform, 
-                                   enhance_type="gamma_transform") # 0.41 iou
+    test_dataset = ExDark_pytorch("Splits/Test.txt", transform)
+    # test_dataset = ExDark_pytorch(annotations_file="Splits/Test.txt", 
+    #                                transform=transform, 
+    #                                enhance_type="log_transform") # 0.41 iou
     test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
     test_classify(model, test_loader, criterion)
     

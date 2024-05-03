@@ -6,8 +6,9 @@ from torchvision.models.detection import *
 from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import to_pil_image
 import cv2
-from enhance import enhance
+from enhance import *
 import torch
+# from model import Autoencoder
 # from dataset import Ex_dataset
 
 
@@ -47,20 +48,22 @@ def infer_one_image(model_name, image_path, box_score_thresh=0.9):
     im = to_pil_image(box.detach())
     im.show()
     
-    
+model = Autoencoder()
+checkpoint_path = "Trained_model/model.h5"
+model.load_weights(checkpoint_path)
 
-
-img_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Car\2015_02409.jpg"
+img_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark\Car\2015_03008.png"
 img = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
+print(img.shape)
 # img_enhance = enhance(img, "linear_gray_transform")
-img_enhance = enhance(img, "log_transform")
+img_enhance = enhance(img, "Autoencoder", model)
 # img_enhance = enhance(img, "gamma_transform")
 enhanced_path = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\image_test\enhanced.png"
 cv2.imwrite(enhanced_path, img_enhance)
-# infer_one_image("fasterRCNN_restnet",
-#                 img_path)
-# infer_one_image("fasterRCNN_restnet",
-#                 enhanced_path)
+infer_one_image("fasterRCNN_restnet",
+                img_path)
+infer_one_image("fasterRCNN_restnet",
+                enhanced_path)
 
 
 

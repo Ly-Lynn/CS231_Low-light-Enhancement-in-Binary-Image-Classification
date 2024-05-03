@@ -75,7 +75,7 @@ def main():
     ])
 
     # test_dataset = ExDark_pytorch("Train.txt", transform)
-    test_dataset = ExDark_pytorch(annotations_file="Test.txt", 
+    test_dataset = ExDark_pytorch(annotations_file="Test_2.txt", 
                                 transform=transform, 
                                 enhance="log_transform") # 0.41 iou
     test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
