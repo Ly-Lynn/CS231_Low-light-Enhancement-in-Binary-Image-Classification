@@ -1,11 +1,9 @@
 import cv2 as cv
 import numpy as np
 import os
-import json
-from PIL import Image
 from keras import layers
 import tensorflow as tf
-from keras.layers import add, Dense, Dropout, Conv2D,MaxPooling2D,UpSampling2D,Input,BatchNormalization, RepeatVector, Reshape
+from keras.layers import Dropout
 import keras
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -186,9 +184,9 @@ def enhance(image, type, model=None):
         img = img.astype('float32') / 255.0
         img = np.expand_dims(img, axis=0)
         img_pred = model.predict(img)
-        # return np.clip(img_pred, 0.0, 1.0)[0] * 255.0
         img_pred = np.clip(img_pred, 0.0, 1.0)[0] * 255.0
         return img_pred.astype(np.uint8)
+    
     enhanced_image = cv.merge((r_map, g_map, b_map))
     # save_path = img_path.replace(".jpg", f"{type}.jpg")
     # cv.imwrite(save_path, enhanced_image)
@@ -200,6 +198,9 @@ def save_enhance(annotator_file,
                 model=None,
                 anno_dir = r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno",
                 img_dir = r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"):
+    '''
+    for visualization
+    '''
     
     OUTDIR = f"Enhance_{enhance_type}"
     if not os.path.exists(OUTDIR):

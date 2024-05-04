@@ -1,16 +1,11 @@
 
 import torch
-from torchvision.io import read_image
-from torchvision.ops.boxes import masks_to_boxes
-from torchvision import tv_tensors
 from torchvision.transforms.v2 import functional as F
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from torchvision.models.detection import *
-from torchvision import transforms
 from enhance import *
 import cv2
-import os
-import joblib
+
 
 def accuracy(output, target):    
     correct = output.eq(target).sum().item()
@@ -67,8 +62,8 @@ class ExDark_pytorch(Dataset):
     def __init__(self, annotations_file, 
                  transform, 
                  enhance_type=None,
-                 anno_dir=r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno",
-                 img_dir=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"):
+                 anno_dir=r"D:/AI/CV/CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks/ExDark_Annno", # folder of images
+                 img_dir=r"D:\AI\CV\CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks\ExDark\ExDark"): # folder of annator
         
         with open(annotations_file, "r") as f:
             lines = f.readlines()
@@ -119,9 +114,3 @@ class ExDark_pytorch(Dataset):
             
     def __len__(self):
         return len(self.lines)
-
-transform = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Resize((128, 128)),
-        transforms.ToTensor()
-    ]) # transform data

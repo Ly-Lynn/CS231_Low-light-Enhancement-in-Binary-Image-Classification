@@ -7,13 +7,6 @@ from torchvision.utils import draw_bounding_boxes
 from torchvision.transforms.functional import to_pil_image
 import cv2
 from enhance import *
-import torch
-# from model import Autoencoder
-# from dataset import Ex_dataset
-
-
-
-
 
 def infer_one_image(model_name, image_path, box_score_thresh=0.9):
     if model_name == "fasterRCNN_restnet":
@@ -25,11 +18,7 @@ def infer_one_image(model_name, image_path, box_score_thresh=0.9):
     elif model_name == "FCOS_ResNet50_FPN_Weights":   
         weights = FCOS_ResNet50_FPN_Weights.DEFAULT
         model = fcos_resnet50_fpn(weights=weights, box_score_thresh=box_score_thresh)
-    
-    
-    
-    # ..................
-    
+        
     model.eval()
 
     # image loading and transform
