@@ -13,7 +13,7 @@ def linearTransformed(image,c, d):
     transformed_image = np.clip(transformed_image, 0, 255).astype(np.uint8)
     return transformed_image
 
-def logarithmTransformed(image, ld = 70, lg=10):
+def logarithmTransformed(image, ld = 70):
     transformed_image = ld * np.log10(1 + image) 
     transformed_image = np.clip(transformed_image, 0, 255).astype(np.uint8)
     return transformed_image
