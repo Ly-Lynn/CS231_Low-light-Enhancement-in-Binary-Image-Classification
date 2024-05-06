@@ -1,6 +1,3 @@
-
-
-
 from torchvision.io.image import read_image
 from torchvision.models.detection import *
 from torchvision.utils import draw_bounding_boxes
