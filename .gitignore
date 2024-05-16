@@ -9,3 +9,5 @@ Splits
 Trained_model
 Enhance_HE
 best_classify_Autoencoder_.pth
+test_enhance_evaluation.py
+/img/Data/
