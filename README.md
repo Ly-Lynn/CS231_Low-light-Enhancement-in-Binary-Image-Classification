@@ -1,5 +1,5 @@
-# CS231_Low-light-Enhancement-in-Classical-Computer-Vision-Tasks
-The low light enhancement for Classification and Object Localization Tasks project
+# CS231_Low-light Enhancement in Binary Image Classification
+The low light enhancement for the Binary Image Classification Tasks project
 
 !["Classification tasks beetween original and low-light enhanced image](img/classification_infer.png)
 
